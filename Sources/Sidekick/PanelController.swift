@@ -7,6 +7,7 @@ final class PanelController: NSObject, NSWindowDelegate {
     let panel: FloatingPanel
 
     private static let autosaveName = "SidekickPanel"
+    private static let clickThroughKey = "ClickThrough"
     private static let screenMargin: CGFloat = 16
     /// Longer than the longest row animation, so rows that fade out are not cut off by the shrinking window.
     private static let shrinkDelay: Duration = .milliseconds(900)
@@ -16,6 +17,8 @@ final class PanelController: NSObject, NSWindowDelegate {
     private var contentHeight: CGFloat = 0
     private var shrinkTask: Task<Void, Never>?
     private var fadeBackTask: Task<Void, Never>?
+    private var cursorMonitor: Any?
+    private var isCursorInside = false
 
     init(store: TaskStore) {
         self.store = store
@@ -47,10 +50,19 @@ final class PanelController: NSObject, NSWindowDelegate {
             ))
         }
         panel.setFrameAutosaveName(Self.autosaveName)
+        applyClickThrough(UserDefaults.standard.bool(forKey: Self.clickThroughKey))
     }
 
     var isVisible: Bool {
         panel.isVisible
+    }
+
+    var isClickThrough: Bool {
+        get { panel.ignoresMouseEvents }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Self.clickThroughKey)
+            applyClickThrough(newValue)
+        }
     }
 
     func show() {
@@ -103,6 +115,37 @@ final class PanelController: NSObject, NSWindowDelegate {
         frame.origin.y = top - height
         panel.setFrame(frame, display: true)
         panel.invalidateShadow()
+    }
+
+    /// A window that ignores mouse events gets no hover events from its tracking area,
+    /// so in click-through mode the panel follows the cursor with a global monitor.
+    private func applyClickThrough(_ isOn: Bool) {
+        panel.ignoresMouseEvents = isOn
+        if let cursorMonitor {
+            NSEvent.removeMonitor(cursorMonitor)
+            self.cursorMonitor = nil
+        }
+        if isCursorInside {
+            isCursorInside = false
+            hoverChanged(isInside: false)
+        }
+        guard isOn else { return }
+
+        cursorMonitor = NSEvent.addGlobalMonitorForEvents(
+            matching: [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.cursorMoved()
+            }
+        }
+    }
+
+    private func cursorMoved() {
+        let isInside = panel.isVisible && panel.frame.contains(NSEvent.mouseLocation)
+        guard isInside != isCursorInside else { return }
+
+        isCursorInside = isInside
+        hoverChanged(isInside: isInside)
     }
 
     private func hoverChanged(isInside: Bool) {

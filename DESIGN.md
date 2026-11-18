@@ -141,11 +141,15 @@ Sidekick reads `~/.config/sidekick/config.json`:
   `hover_fade_back_delay_ms` and fades back to full opacity. The wait keeps a cursor
   passing along the edge from making the window flicker. The faded window still takes
   clicks, so the user can drag it while it is faded.
+- In click-through mode, clicks, scrolls and drags pass through the window to whatever is
+  under it, and the user cannot move the window. The window still fades on hover.
+  Sidekick remembers the mode between launches.
 - Sidekick has no Dock icon and does not appear in the app switcher.
-- A menu bar icon has four items: Show Window or Hide Window, Open Tasks File (in the
-  default app for markdown), Open Config File (in the default app for JSON) and Quit
-  Sidekick. Open Tasks File is disabled while the config is missing or invalid. Open
-  Config File is disabled while the config file does not exist.
+- A menu bar icon has five items: Show Window or Hide Window, Click Through (checked while
+  click-through mode is on), Open Tasks File (in the default app for markdown), Open Config
+  File (in the default app for JSON) and Quit Sidekick. Open Tasks File is disabled while
+  the config is missing or invalid. Open Config File is disabled while the config file
+  does not exist.
 - Moving is the only interaction with the window.
 
 ### Look

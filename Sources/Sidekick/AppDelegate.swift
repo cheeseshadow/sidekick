@@ -6,6 +6,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var panelController: PanelController?
     private var statusItem: NSStatusItem?
     private let toggleItem = NSMenuItem(title: "Hide Window", action: #selector(toggleWindow), keyEquivalent: "")
+    private let clickThroughItem = NSMenuItem(
+        title: "Click Through",
+        action: #selector(toggleClickThrough),
+        keyEquivalent: ""
+    )
     private let openItem = NSMenuItem(title: "Open Tasks File", action: #selector(openTasksFile), keyEquivalent: "")
     private let openConfigItem = NSMenuItem(
         title: "Open Config File",
@@ -26,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         toggleItem.title = panelController?.isVisible == true ? "Hide Window" : "Show Window"
+        clickThroughItem.state = panelController?.isClickThrough == true ? .on : .off
         openItem.isEnabled = store.tasksFileURL != nil
         openConfigItem.isEnabled = FileManager.default.fileExists(
             atPath: ConfigLoader.configURL.path(percentEncoded: false)
@@ -40,9 +46,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         menu.autoenablesItems = false
         toggleItem.target = self
+        clickThroughItem.target = self
         openItem.target = self
         openConfigItem.target = self
         menu.addItem(toggleItem)
+        menu.addItem(clickThroughItem)
         menu.addItem(openItem)
         menu.addItem(openConfigItem)
         menu.addItem(.separator())
@@ -60,6 +68,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } else {
             panelController.show()
         }
+    }
+
+    @objc private func toggleClickThrough() {
+        guard let panelController else { return }
+
+        panelController.isClickThrough.toggle()
     }
 
     @objc private func openTasksFile() {
