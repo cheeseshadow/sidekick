@@ -11,6 +11,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         action: #selector(toggleClickThrough),
         keyEquivalent: ""
     )
+    private let resetPositionItem = NSMenuItem(
+        title: "Reset Position",
+        action: #selector(resetPosition),
+        keyEquivalent: ""
+    )
     private let openItem = NSMenuItem(title: "Open Tasks File", action: #selector(openTasksFile), keyEquivalent: "")
     private let openConfigItem = NSMenuItem(
         title: "Open Config File",
@@ -47,10 +52,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.autoenablesItems = false
         toggleItem.target = self
         clickThroughItem.target = self
+        resetPositionItem.target = self
         openItem.target = self
         openConfigItem.target = self
         menu.addItem(toggleItem)
         menu.addItem(clickThroughItem)
+        menu.addItem(resetPositionItem)
         menu.addItem(openItem)
         menu.addItem(openConfigItem)
         menu.addItem(.separator())
@@ -74,6 +81,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard let panelController else { return }
 
         panelController.isClickThrough.toggle()
+    }
+
+    @objc private func resetPosition() {
+        panelController?.resetPosition(on: statusItem?.button?.window?.screen)
     }
 
     @objc private func openTasksFile() {

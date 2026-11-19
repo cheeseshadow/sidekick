@@ -8,7 +8,7 @@ final class PanelController: NSObject, NSWindowDelegate {
 
     private static let autosaveName = "SidekickPanel"
     private static let clickThroughKey = "ClickThrough"
-    private static let screenMargin: CGFloat = 16
+    private static let screenMargin: CGFloat = 6
     /// Longer than the longest row animation, so rows that fade out are not cut off by the shrinking window.
     private static let shrinkDelay: Duration = .milliseconds(900)
 
@@ -23,7 +23,6 @@ final class PanelController: NSObject, NSWindowDelegate {
     init(store: TaskStore) {
         self.store = store
         let width = CGFloat(SidekickConfig.defaultWindowWidth)
-        let visibleFrame = (NSScreen.main ?? NSScreen.screens[0]).visibleFrame
         panel = FloatingPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: 40))
 
         let hostingView = PanelHostingView(rootView: SidekickView(store: store) { _ in })
@@ -44,10 +43,7 @@ final class PanelController: NSObject, NSWindowDelegate {
         panel.delegate = self
 
         if !panel.setFrameUsingName(Self.autosaveName) {
-            panel.setFrameTopLeftPoint(NSPoint(
-                x: visibleFrame.maxX - width - Self.screenMargin,
-                y: visibleFrame.maxY - Self.screenMargin
-            ))
+            resetPosition(on: NSScreen.main)
         }
         panel.setFrameAutosaveName(Self.autosaveName)
         applyClickThrough(UserDefaults.standard.bool(forKey: Self.clickThroughKey))
@@ -71,6 +67,14 @@ final class PanelController: NSObject, NSWindowDelegate {
 
     func hide() {
         panel.orderOut(nil)
+    }
+
+    func resetPosition(on screen: NSScreen?) {
+        let visibleFrame = (screen ?? NSScreen.main ?? NSScreen.screens[0]).visibleFrame
+        panel.setFrameTopLeftPoint(NSPoint(
+            x: visibleFrame.maxX - panel.frame.width - Self.screenMargin,
+            y: visibleFrame.maxY - Self.screenMargin
+        ))
     }
 
     func windowDidChangeScreen(_ notification: Notification) {

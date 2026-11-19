@@ -145,11 +145,13 @@ Sidekick reads `~/.config/sidekick/config.json`:
   under it, and the user cannot move the window. The window still fades on hover.
   Sidekick remembers the mode between launches.
 - Sidekick has no Dock icon and does not appear in the app switcher.
-- A menu bar icon has five items: Show Window or Hide Window, Click Through (checked while
-  click-through mode is on), Open Tasks File (in the default app for markdown), Open Config
+- A menu bar icon has six items: Show Window or Hide Window, Click Through (checked while
+  click-through mode is on), Reset Position, Open Tasks File (in the default app for markdown), Open Config
   File (in the default app for JSON) and Quit Sidekick. Open Tasks File is disabled while
   the config is missing or invalid. Open Config File is disabled while the config file
   does not exist.
+- On first launch the window sits in the top right corner of the screen, just below the menu
+  bar. Reset Position moves it back there, on the screen whose menu bar was clicked.
 - Moving is the only interaction with the window.
 
 ### Look
