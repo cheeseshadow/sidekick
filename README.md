@@ -91,3 +91,7 @@ installed and its license accepted.
 3. Add Sidekick to Login Items in System Settings to start it at login.
 
 `make test` runs the tests for the tasks file parser, the window content and the config.
+
+## License
+
+Sidekick is available under the MIT license. See `LICENSE`.
